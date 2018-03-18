@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://www.gstatic.com/firebasejs/4.11.0/firebase.js"></script>
+
+  <link type="text/css" rel="stylesheet" href="css/styles.css"/>
+  <title>ShortShort Report</title>
+</head>
+<body class="bg-light">
+
+<div class="container pt-4 px-5">
+  <div class="text-center">
+    <img class="d-block mx-auto mb-4" src="images/shortshort-logo.png">
+    <h1>ShortShort Report</h1>
+    <p class="lead">Time to deliver your weekly report!</p>
+  </div>
+
+  <div class="report">
+
+  </div>
+
+</div>
+
+<div class="modal fade" id="report-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <dl class="row">
+          <dt class="col-sm-3">Accomplishments</dt>
+          <dd class="col-sm-9" id="modal-accomplishments"></dd>
+          <dt class="col-sm-3">Priorities</dt>
+          <dd class="col-sm-9" id="modal-priorities"></dd>
+          <dt class="col-sm-3">Challenges</dt>
+          <dd class="col-sm-9" id="modal-challenges"></dd>
+          <dt class="col-sm-3">Lessons Learned</dt>
+          <dd class="col-sm-9" id="modal-lessons"></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+<script src="js/handlebars.min-latest.js"></script>
+<script src="js/shortshort.js"></script>
+
+<script id="login-form" type="text/x-handlebars-template">
+  <div class="login-tabs mx-auto pt-5">
+    <ul class="nav nav-tabs" id="loginTab" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" id="login-tab" data-toggle="tab" href="#login" role="tab" aria-controls="home"
+           aria-selected="true">Login</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" id="register-tab" data-toggle="tab" href="#register" role="tab" aria-controls="profile"
+           aria-selected="false">Register</a>
+      </li>
+    </ul>
+    <div class="tab-content py-4" id="myTabContent">
+      <div class="tab-pane fade show active" id="login" role="tabpanel" aria-labelledby="home-tab">
+        <div class="alert alert-success" role="alert">
+          Account Creation Successful. You may now login.
+        </div>
+        <form id="form-login">
+          <div class="form-group">
+            <label for="login-email">Email address</label>
+            <input type="email" class="form-control" id="login-email" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" class="form-control" id="login-password" placeholder="Password">
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+      </div>
+      <div class="tab-pane fade" id="register" role="tabpanel" aria-labelledby="profile-tab">
+        <form id="form-register">
+          <div class="form-group">
+            <label for="register-email">Email address</label>
+            <input type="email" class="form-control" id="register-email" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label for="register-password">Password</label>
+            <input type="password" class="form-control" id="register-password" placeholder="Password">
+            <div class="invalid-feedback">Your passwords must match.</div>
+          </div>
+          <div class="form-group">
+            <label for="register-confirm-password">Confirm Password</label>
+            <input type="password" class="form-control" id="register-confirm-password" placeholder="Retype Password">
+            <div class="invalid-feedback">Your passwords must match.</div>
+          </div>
+          <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</script>
+
+<script id="report-form" type="text/x-handlebars-template">
+  <div class="card">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-warning">
+      <div class="collapse navbar-collapse">
+        <ul class="nav nav-pills mr-auto" id="pills-tab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link btn btn-warning" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab"
+               aria-controls="pills-home" aria-selected="true">New Report</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-warning" id="pills-past-tab" data-toggle="pill" href="#pills-past"
+               role="tab"
+               aria-controls="pills-past" aria-selected="false">Past Reports</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link btn btn-warning disabled" id="pills-subordinate-tab" data-toggle="pill" href="#pills-subordinate"
+               role="tab"
+               aria-controls="pills-subordinate" aria-selected="false">Subordinate Reports</a>
+          </li>
+        </ul>
+        <button class="btn btn-sm btn-primary" id="btn-logout">Logout</button>
+      </div>
+    </nav>
+
+
+    <div class="card-body">
+
+      <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+          <div class="tab-pane fade show active" id="pills-new-report" role="tabpanel" aria-labelledby="pills-new-report">
+            <p class="pt-3">Welcome, {{email}}! Please take no more than 15 minutes to fill out and submit your weekly report.</p>
+            <form id="form-report" class="w-75 mx-auto pt-3 border">
+              <div class="mx-3 mb-4">
+              <div class="form-group">
+                <label for="manager-email">Your Manager's Email Address</label>
+                <input type="text" class="form-control" id="manager-email">
+              </div>
+                <div class="form-group">
+                  <label for="question-accomplishments">Accomplishments for the week</label>
+                  <textarea id="question-accomplishments" rows="10" class="form-control" aria-describedby="help-accomplishments"></textarea>
+                  <small id="help-accomplishments" class="form-text text-muted">List completed activities and notable accomplishments. In general, what is working? What is your current situation?</small>
+                </div>
+                <div class="form-group">
+                  <label for="question-priorities">Priorities for next week</label>
+                  <textarea id="question-priorities" rows="10" class="form-control" aria-describedby="help-priorities"></textarea>
+                  <small id="help-priorities" class="form-text text-muted">Please be specific.</small>
+                </div>
+                <div class="form-group">
+                  <label for="question-challenges">Challenges/Roadblocks</label>
+                  <textarea id="question-challenges" rows="10" class="form-control" aria-describedby="help-challenges"></textarea>
+                  <small id="help-challenges" class="form-text text-muted">Describe potential challenges that may impede your intended tasks/goals.</small>
+                </div>
+                <div class="form-group">
+                  <label for="question-lessons">Lessons Learned/Opportunities for Improvement</label>
+                  <textarea id="question-lessons" rows="10" class="form-control" aria-describedby="help-lessons"></textarea>
+                  <small id="help-lessons" class="form-text text-muted">List any area that might benefit from improvement; questions you are trying to solve; lessons recently learned or relearned.</small>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="tab-pane fade" id="pills-past" role="tabpanel" aria-labelledby="pills-past-tab">
+
+        </div>
+        <div class="tab-pane fade" id="pills-subordinate" role="tabpanel" aria-labelledby="pills-subordinate-tab">bbb</div>
+      </div>
+
+    </div>
+  </div>
+</script>
+
+</body>
+</html>
