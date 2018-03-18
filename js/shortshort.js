@@ -39,7 +39,7 @@ $(document).ready(function () {
         $.each(reportList, function(k,v) {
           // reportArr.push(v);
           var timestamp = new Date(v.timestamp);
-          $("#pills-past ul").append("<li class=\"list-group-item\" data-listitem=\""+k+"\">Submitted: " + timestamp + "</li>");
+          $("#pills-past ul").prepend("<li class=\"list-group-item\" data-listitem=\""+k+"\">Submitted: " + timestamp + "</li>");
         });
         // Make each list item clickable and populate the modal content as needed
         $("#pills-past li").click(function (item) {
@@ -54,8 +54,15 @@ $(document).ready(function () {
 
 
       // Logout when logout button is clicked
-      $("#btn-logout").click(function () {
+      $(".btn-logout").click(function () {
+        $(".modal").modal('hide');
         firebase.auth().signOut();
+      });
+      
+      // Switch to Past Reports when button is clicked
+      $(".btn-past").click(function () {
+        $(".modal").modal('hide');
+        $('#pills-tab a[href="#pills-past"]').tab('show')
       });
 
       // Accept report form submission
@@ -76,9 +83,12 @@ $(document).ready(function () {
           timestamp: Date.now()
         };
 
-        // Write to the database
+        // Write to the database and give feedback to the user
         var newReport = firebase.database().ref('reports/' + uid).push();
-        newReport.set(postData);
+        newReport.set(postData).then(function () {
+          $("#form-report")[0].reset();
+          $("#small-modal").modal();
+        });
       });
 
     } else {
